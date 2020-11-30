@@ -48,6 +48,7 @@ class SkeletonTest extends \PHPUnit\Framework\TestCase
 
     public function test()
     {
+        
         $this->assertFalse($this->fsio->isFile('/app/DataSource/Author/Author.php'));
         $this->assertFalse($this->fsio->isFile('/app/DataSource/Author/AuthorEvents.php'));
         $this->assertFalse($this->fsio->isFile('/app/DataSource/Author/AuthorFields.php'));
@@ -82,6 +83,49 @@ class SkeletonTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($this->fsio->isFile('/app/DataSource/Author/AuthorTableEvents.php'));
         $this->assertTrue($this->fsio->isFile('/app/DataSource/Author/AuthorRow.php'));
         $this->assertTrue($this->fsio->isFile('/app/DataSource/Author/AuthorTableSelect.php'));
+    }
+
+    public function testTablesConfig()
+    {
+        $config = new Config([
+            'pdo' => 'sqlite:' . __DIR__ . '/fixture.sqlite',
+            'directory' => '/app/DataSource',
+            'namespace' => 'App\\DataSource\\Author',
+            'tables'=>['authors', 'employee']
+        ]);
+ 
+        $this->fsio->mkdir('/app/DataSource');
+        $skeleton = new Skeleton($config, $this->fsio, $this->logger);
+        $skeleton();
+
+        // The only orm classes should be for authors and employee
+        $this->assertTrue($this->fsio->isFile('/app/DataSource/Author/Author.php'));
+        $this->assertTrue($this->fsio->isFile('/app/DataSource/Employee/Employee.php'));
+
+        $this->assertFalse($this->fsio->isFile('/app/DataSource/Tag/Tag.php'));
+        $this->assertFalse($this->fsio->isFile('/app/DataSource/Tagging/Tagging.php'));
+    
+    }
+
+    public function testConfig()
+    {
+        $config = new Config([
+            'pdo' => 'sqlite:' . __DIR__ . '/fixture.sqlite',
+            'directory' => '/app/DataSource',
+            'namespace' => 'App\\DataSource\\Author',
+        ]);
+ 
+        $this->fsio->mkdir('/app/DataSource');
+        $skeleton = new Skeleton($config, $this->fsio, $this->logger);
+        $skeleton();
+
+        // All tables should have ORM files
+        $this->assertTrue($this->fsio->isFile('/app/DataSource/Author/Author.php'));
+        $this->assertTrue($this->fsio->isFile('/app/DataSource/Employee/Employee.php'));
+        $this->assertTrue($this->fsio->isFile('/app/DataSource/Tag/Tag.php'));
+        $this->assertTrue($this->fsio->isFile('/app/DataSource/Tagging/Tagging.php'));
+        $this->assertTrue($this->fsio->isFile('/app/DataSource/Thread/Thread.php'));
+    
     }
 
     protected function readHandle($handle)

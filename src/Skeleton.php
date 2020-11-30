@@ -128,6 +128,10 @@ class Skeleton
     protected function getTypes() : ?int
     {
         $tables = $this->info->fetchTableNames();
+        if ($this->config->tables) {
+            $tables = array_intersect($tables, $this->config->tables);
+        }
+
         foreach ($tables as $table) {
             $type = ($this->transform)($table);
             if ($type === null) {

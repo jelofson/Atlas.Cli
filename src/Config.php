@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Atlas\Cli;
 
 use Atlas\Cli\Exception;
+use InvalidArgumentException;
 
 class Config
 {
@@ -19,6 +20,7 @@ class Config
     protected $namespace;
     protected $transform;
     protected $templates;
+    protected $tables;
 
     public function __construct(array $input)
     {
@@ -38,6 +40,11 @@ class Config
 
         $this->templates = $input['templates'] ?? dirname(__DIR__) . '/resources/templates';
         $this->templates = rtrim($this->templates, DIRECTORY_SEPARATOR);
+
+        $this->tables = $input['tables'] ?? [];
+        if (! is_array($this->tables)) {
+            throw new InvalidArgumentException("`tables` configuration element must be of type array.");
+        }
     }
 
     public function __get(string $key)
